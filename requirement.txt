@@ -1,7 +1,0 @@
-streamlit
-numpy
-astropy
-radio-beam
-reproject
-scipy
-matplotlib
