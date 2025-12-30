@@ -205,15 +205,22 @@ def calculate_spectral_index_workflow():
         mask = (data1_aligned > sigma_thresh*rms_1) & (data2_conv > sigma_thresh*rms_2)
         
         # 6. CALCULATION
-        S1 = data1_aligned
-        S2 = data2_conv
+        # We only want to calculate the index where the data is valid (inside the mask)
+        # This prevents the "Dimension Mismatch" error.
+        
+        S1 = data1_aligned[mask]  # Take only valid pixels (becomes 1D array)
+        S2 = data2_conv[mask]     # Take only valid pixels (becomes 1D array)
+        
         v1 = map1.freq.to(u.Hz).value
         v2 = map2.freq.to(u.Hz).value
         
         alpha_map = np.full_like(map2.data, np.nan)
         
         with np.errstate(invalid='ignore', divide='ignore'):
+            # Now S1 and S2 are 1D, so alpha_vals will also be 1D
             alpha_vals = np.log10(S1 / S2) / np.log10(v1 / v2)
+            
+            # Now 1D fits into 1D -> No Error
             alpha_map[mask] = alpha_vals
 
         # 7. DISPLAY & SAVE
